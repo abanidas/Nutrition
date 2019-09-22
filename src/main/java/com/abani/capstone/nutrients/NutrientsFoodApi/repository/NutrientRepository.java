@@ -1,0 +1,11 @@
+package com.abani.capstone.nutrients.NutrientsFoodApi.repository;
+
+import com.abani.capstone.nutrients.NutrientsFoodApi.entity.Nutrients;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface NutrientRepository extends JpaRepository<Nutrients, Long> {
+
+    Nutrients findByName(String name);
+}
