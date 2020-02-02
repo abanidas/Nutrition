@@ -13,7 +13,7 @@ public class Nutrients {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
@@ -38,11 +38,11 @@ public class Nutrients {
     @Column(name = "wiki_url")
     private String wikiUrl;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

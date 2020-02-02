@@ -35,7 +35,7 @@ public class Food {
     @CollectionTable(name = "nutrient_quantities", joinColumns = {@JoinColumn(name = "food")})
     @Column(name = "quantity")
     @MapKeyJoinColumn(name = "nutrient_id")
-    private Map<Integer, String> quantityOfNutrients = new HashMap<>();
+    private Map<Long, String> quantityOfNutrients = new HashMap<>();
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -83,11 +83,11 @@ public class Food {
         this.nutrients = nutrients;
     }
 
-    public Map<Integer, String> getQuantityOfNutrients() {
+    public Map<Long, String> getQuantityOfNutrients() {
         return quantityOfNutrients;
     }
 
-    public void setQuantityOfNutrients(Map<Integer, String> quantityOfNutrients) {
+    public void setQuantityOfNutrients(Map<Long, String> quantityOfNutrients) {
         this.quantityOfNutrients = quantityOfNutrients;
     }
 

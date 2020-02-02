@@ -2,6 +2,7 @@
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
+.env
 .apt_generated
 .classpath
 .factorypath
@@ -15,6 +16,9 @@
 *.iws
 *.iml
 *.ipr
+.mvn
+mvnw
+*.cmd
 
 ### NetBeans ###
 /nbproject/private/
@@ -23,3 +27,4 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+/target

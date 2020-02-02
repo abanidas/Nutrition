@@ -21,8 +21,8 @@ public class NutrientServiceImpl implements NutrientService {
     }
 
     @Override
-    public Optional<Nutrients> getNutrient(Long employeeId) {
-        return nutrientRepository.findById(employeeId);
+    public Optional<Nutrients> getNutrient(Long nutrientId) {
+        return nutrientRepository.findById(nutrientId);
     }
 
     @Override

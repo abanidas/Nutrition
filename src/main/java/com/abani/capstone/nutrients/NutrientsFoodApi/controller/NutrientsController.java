@@ -1,15 +1,14 @@
 package com.abani.capstone.nutrients.NutrientsFoodApi.controller;
 
 import com.abani.capstone.nutrients.NutrientsFoodApi.entity.Food;
+import com.abani.capstone.nutrients.NutrientsFoodApi.entity.NutrientFoodMapper;
 import com.abani.capstone.nutrients.NutrientsFoodApi.entity.Nutrients;
 import com.abani.capstone.nutrients.NutrientsFoodApi.entity.VersionTable;
 import com.abani.capstone.nutrients.NutrientsFoodApi.service.FoodService;
 import com.abani.capstone.nutrients.NutrientsFoodApi.service.NutrientService;
 import com.abani.capstone.nutrients.NutrientsFoodApi.service.VersionTableService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -28,24 +27,7 @@ public class NutrientsController {
 
     @GetMapping(value = "/api/nutrients")
     public List<Nutrients> getAllNutrients() {
-        List<Nutrients> nutrientsList = new ArrayList<>();
-
-        /*Nutrients nutrient = new Nutrients();
-        Set<Food> foods = new HashSet<>();
-        foods.add(foodService.findByName("Ghee"));
-        nutrient.setFoods(foods);
-        nutrient.setName("Vitamin E");
-        nutrient.setDescription("Vitamin E is a group of eight fat soluble chemicals that include four tocopherols and four tocotrienols." +
-                " Vitamin E deficiency can cause nerve problems.");
-        List<String> names = new ArrayList<>();
-        names.add("Tocopheryl Acetate");
-        names.add("Tocopheryl Acid Succinate");
-        names.add("Tocotrienol");
-        nutrient.setAlsoKnownAs(names);
-
-        nutrient.setWikiUrl("https://en.wikipedia.org/wiki/Vitamin_E");
-        nutrient.setSymbol("C29H50O2");
-        nutrientService.saveNutrient(nutrient);*/
+        List<Nutrients> nutrientsList;
 
         nutrientsList = nutrientService.retrieveNutrients();
 
@@ -56,15 +38,26 @@ public class NutrientsController {
             versionTableService.saveVersionTable(versionTable);
         }
 
-        /*Food food = foodService.findByName("Ghee");
-        Map<Integer, String> map = new HashMap<>();
-        Nutrients nutrient = nutrientService.findByName("Vitamin E");
-        map = food.getQuantityOfNutrients();
-        map.put(nutrient.getId(), "2.8 mg in 100 grams");
-        food.setQuantityOfNutrients(map);
-        foodService.updateFood(food);*/
-
         return nutrientsList;
+    }
+
+    @GetMapping(value = "/api/foods")
+    public List<Food> getAllFoods(){
+        List<Food> foods = foodService.retrieveFoods();
+        return foods;
+    }
+
+    @GetMapping(value = "/api/loadFoodName")
+    public List<Map<String, String>> getFoodWithId(){
+        List<Food> foods = foodService.retrieveFoods();
+        List<Map<String, String>> foodList = new ArrayList<>();
+        for (Food f : foods) {
+            Map<String, String> foodMap = new HashMap<>();
+            foodMap.put("id", String.valueOf(f.getId()));
+            foodMap.put("name", f.getName());
+            foodList.add(foodMap);
+        }
+        return foodList;
     }
 
     @GetMapping(value = "/api/version")
@@ -76,21 +69,66 @@ public class NutrientsController {
         return versionTableList.get(0);
     }
 
-    @PostMapping(value = "/api/abaniTryingToAddFood")
+    @PostMapping(value = "/api/food/add")
     public String addFood(HttpServletRequest request){
 
         Food food = foodService.findByName(request.getParameter("name"));
         if (food == null) {
             food = new Food();
+            food.setName(request.getParameter("name"));
             food.setDescription(request.getParameter("description"));
             food.setImageUrl(request.getParameter("imgUrl"));
             food.setScientificName(request.getParameter("sName"));
-            food.setWikiUrl(request.getParameter("wikiUrl"));
+            food.setWikiUrl(request.getParameter("wikiUrl") );
             foodService.saveFood(food);
         } else {
             return "Food Already Exist";
         }
 
         return "Food added";
+    }
+
+    @PostMapping(value = "/api/nutrient/add")
+    public String addNutrients(@RequestParam(name = "foods") List<String> foodIds, @RequestParam(name = "names") String names, HttpServletRequest request){
+
+        Nutrients nutrient = nutrientService.findByName(request.getParameter("name"));
+        System.out.println("name " + request.getParameter("name"));
+        if (nutrient == null) {
+            nutrient = new Nutrients();
+
+            Set<Food> foods = new HashSet<>();
+            for (String fid: foodIds){
+                foods.add(foodService.getFood(Long.parseLong(fid)).get());
+            }
+            nutrient.setFoods(foods);
+            nutrient.setName(request.getParameter("name"));
+            nutrient.setDescription(request.getParameter("desc"));
+            nutrient.setAlsoKnownAs(Arrays.asList(names.split(",")));
+
+            nutrient.setWikiUrl(request.getParameter("wiki"));
+            nutrient.setSymbol(request.getParameter("symbol"));
+            nutrientService.saveNutrient(nutrient);
+        }
+        else {
+            return "Nutrient already exist";
+        }
+
+        return "Nutrient Added";
+    }
+
+    @PutMapping(value = "/api/map")
+    public String mapNutrientAndFood(@RequestBody NutrientFoodMapper mapper){
+
+        if(mapper.getFoodId() == null || mapper.getNutrientId() == null){
+            return "Invalid operation";
+        }
+        Food food = foodService.getFood(mapper.getFoodId()).orElse(null);
+        Nutrients nutrient = nutrientService.getNutrient(mapper.getNutrientId()).orElse(null);
+        if(food == null || nutrient == null){
+            return "Data not found";
+        }
+        food.getQuantityOfNutrients().put(nutrient.getId(), mapper.getQuantity());
+        foodService.updateFood(food);
+        return "Successfully added";
     }
 }
