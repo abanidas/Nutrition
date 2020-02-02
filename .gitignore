@@ -14,7 +14,7 @@
 *.iws
 *.iml
 *.ipr
-/.mvn
+/.mvn/
 mvnw
 *.cmd
 
